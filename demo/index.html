@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Super Flash Cards - Demo</title>
+    <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>Super Flash Cards</h1>
+            <p class="tagline">Free Flashcard Learning Platform</p>
+        </header>
+
+        <!-- Home Screen -->
+        <div id="homeScreen" class="screen active">
+            <div class="welcome-section">
+                <h2>Welcome to Super Flash Cards!</h2>
+                <p>Create custom study sets and learn more effectively.</p>
+            </div>
+            <div class="button-group">
+                <button onclick="showCreateSet()" class="btn btn-primary">Create New Study Set</button>
+                <button onclick="loadSampleSet()" class="btn btn-secondary">View Sample Set</button>
+            </div>
+        </div>
+
+        <!-- Create Study Set Screen -->
+        <div id="createSetScreen" class="screen">
+            <h2>Create New Study Set</h2>
+            <div class="form-group">
+                <label for="setName">Study Set Name:</label>
+                <input type="text" id="setName" placeholder="Enter study set name" />
+            </div>
+
+            <div class="form-group">
+                <label for="subject">Subject:</label>
+                <select id="subject" onchange="onSubjectChange()">
+                    <option value="">Select a subject...</option>
+                    <option value="english">English</option>
+                    <option value="math">Math</option>
+                    <option value="science">Science</option>
+                    <option value="social-studies">Social Studies</option>
+                    <option value="world-language">World Language</option>
+                </select>
+            </div>
+
+            <div id="subjectInfo" class="info-box" style="display:none;"></div>
+
+            <div class="form-group">
+                <label>Add Flashcards:</label>
+                <button onclick="toggleImportSection()" class="btn btn-small">📥 Import Questions</button>
+                
+                <div id="importSection" style="display:none; background: var(--light-bg); padding: 20px; border-radius: 8px; margin: 15px 0; border: 2px solid var(--border-color);">
+                    <label for="importTextarea">Paste questions in this format (Term[TAB]Definition):</label>
+                    <textarea id="importTextarea" placeholder="Example:&#10;apple	manzana&#10;water	agua&#10;bread	pan&#10;&#10;Paste your terms and definitions separated by TAB, one per line." rows="8" onkeydown="handleTabInTextarea(event)"></textarea>
+                    <small style="display: block; color: #666; margin-top: 8px;">Each line should be: Term [TAB] Definition</small>
+                    <button onclick="importQuestions()" class="btn btn-primary" style="margin-top: 10px;">Import Questions</button>
+                </div>
+
+                <div id="cardsContainer"></div>
+                <button onclick="addCardInput()" class="btn btn-small">+ Add Card</button>
+            </div>
+
+            <div class="button-group">
+                <button onclick="saveStudySet()" class="btn btn-primary">Create Study Set</button>
+                <button onclick="showHome()" class="btn btn-secondary">Cancel</button>
+            </div>
+        </div>
+
+        <!-- Study Set View Screen -->
+        <div id="studySetScreen" class="screen">
+            <div class="header-section">
+                <h2 id="setTitle">Study Set</h2>
+                <p id="setSubject" class="subject-label"></p>
+            </div>
+
+            <div class="menu-buttons">
+                <button onclick="startUnderstand()" class="btn btn-primary">🧠 Understand</button>
+                <button onclick="startFlashcards()" class="btn btn-primary">📚 Study with Flashcards</button>
+                <button onclick="startMultipleChoice()" class="btn btn-primary">❓ Practice Multiple Choice</button>
+                <button onclick="startLearn()" class="btn btn-primary">🎓 Learn Mode</button>
+                <button onclick="startTextQuestions()" class="btn btn-primary">✍️ Text Questions</button>
+            </div>
+
+            <div class="cards-preview">
+                <h3>Cards in this set:</h3>
+                <div id="cardsPreview"></div>
+            </div>
+
+            <button onclick="showHome()" class="btn btn-secondary">Back</button>
+        </div>
+
+        <!-- Flashcard Study Screen -->
+        <div id="flashcardScreen" class="screen">
+            <h2>Flashcard Study</h2>
+            <div class="progress-bar">
+                <div id="progress" class="progress-fill"></div>
+            </div>
+            <p id="progressText" class="progress-text"></p>
+
+            <div class="flashcard-container">
+                <div id="flashcard" class="flashcard" onclick="flipCardRegular()">
+                    <div class="flashcard-inner">
+                        <div class="flashcard-front">
+                            <p id="cardQuestion">Click to see the question</p>
+                        </div>
+                        <div class="flashcard-back">
+                            <p id="cardAnswer">Click to see the answer</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button onclick="previousCard()" class="btn">← Previous</button>
+                <button onclick="nextCard()" class="btn">Next →</button>
+            </div>
+
+            <button onclick="exitStudy()" class="btn btn-secondary">Exit</button>
+        </div>
+
+        <!-- Multiple Choice Screen -->
+        <div id="multipleChoiceScreen" class="screen">
+            <h2>Multiple Choice Practice</h2>
+            <div class="progress-bar">
+                <div id="mcProgress" class="progress-fill"></div>
+            </div>
+            <p id="mcProgressText" class="progress-text"></p>
+
+            <div class="question-box">
+                <p id="mcQuestion" class="question"></p>
+                <div id="mcOptions" class="options-container"></div>
+            </div>
+
+            <p id="mcResult" class="result-message"></p>
+
+            <div class="button-group">
+                <button onclick="exitStudy()" class="btn btn-secondary">Exit</button>
+            </div>
+        </div>
+
+        <!-- Learn Mode Screen -->
+        <div id="learnScreen" class="screen">
+            <h2>Learn Mode</h2>
+            <div class="progress-bar">
+                <div id="learnProgress" class="progress-fill"></div>
+            </div>
+            <p id="learnProgressText" class="progress-text"></p>
+
+            <div class="question-box">
+                <p id="learnQuestion" class="question"></p>
+                <input type="text" id="learnInput" placeholder="Type your answer here...">
+                <p id="learnFeedback" class="feedback-message"></p>
+            </div>
+
+            <div class="button-group">
+                <button onclick="submitLearnAnswer()" class="btn btn-primary">Submit Answer</button>
+                <button onclick="skipQuestion()" class="btn">Skip</button>
+            </div>
+
+            <button onclick="exitStudy()" class="btn btn-secondary">Exit</button>
+        </div>
+
+        <!-- Text Questions Screen -->
+        <div id="textQuestionsScreen" class="screen">
+            <h2>Text Questions</h2>
+            <div class="progress-bar">
+                <div id="textProgress" class="progress-fill"></div>
+            </div>
+            <p id="textProgressText" class="progress-text"></p>
+
+            <div class="question-box">
+                <p id="textQuestion" class="question"></p>
+                <textarea id="textAnswer" placeholder="Type your answer here..." rows="5"></textarea>
+                <p id="textFeedback" class="feedback-message"></p>
+            </div>
+
+            <div class="button-group">
+                <button onclick="submitTextAnswer()" class="btn btn-primary">Check Answer</button>
+                <button onclick="nextTextQuestion()" class="btn">Next Question</button>
+            </div>
+
+            <button onclick="exitStudy()" class="btn btn-secondary">Exit</button>
+        </div>
+
+        <!-- Results Screen -->
+        <div id="resultsScreen" class="screen">
+            <h2>Session Complete!</h2>
+            <div class="results-box">
+                <p id="resultsMessage"></p>
+                <p id="resultsScore" class="score"></p>
+            </div>
+            <button onclick="showStudySet()" class="btn btn-primary">Back to Study Set</button>
+        </div>
+
+        <!-- Understand Mode Screen -->
+        <div id="understandScreen" class="screen">
+            <div class="understand-header">
+                <h2>Understand</h2>
+                <button id="settingsBtn" class="settings-btn" onclick="toggleSettings()">⚙️</button>
+            </div>
+
+            <!-- Settings Modal -->
+            <div id="settingsModal" class="modal" style="display:none;">
+                <div class="modal-content">
+                    <h3>Study Options</h3>
+                    <div class="settings-options">
+                        <label class="toggle-label">
+                            <input type="checkbox" id="useFlashcards" checked onchange="updateStudyModes()">
+                            <span>📚 Flashcards</span>
+                        </label>
+                        <label class="toggle-label">
+                            <input type="checkbox" id="useMultipleChoice" checked onchange="updateStudyModes()">
+                            <span>❓ Multiple Choice</span>
+                        </label>
+                        <label class="toggle-label">
+                            <input type="checkbox" id="useTyping" checked onchange="updateStudyModes()">
+                            <span>✍️ Typing</span>
+                        </label>
+                    </div>
+                    <button onclick="toggleSettings()" class="btn btn-primary">Done</button>
+                </div>
+            </div>
+
+            <div class="progress-bar">
+                <div id="understandProgress" class="progress-fill"></div>
+            </div>
+            <p id="understandProgressText" class="progress-text"></p>
+
+            <!-- Flashcard View -->
+            <div id="flashcardView" class="understand-mode-view">
+                <div class="flashcard-container">
+                    <div id="understandFlashcard" class="flashcard" onclick="flipCard()">
+                        <div class="flashcard-inner">
+                            <div class="flashcard-front">
+                                <p id="understandCardQuestion">Click to see the question</p>
+                            </div>
+                            <div class="flashcard-back">
+                                <p id="understandCardAnswer">Click to see the answer</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <button onclick="randomizeCards()" class="btn btn-small">🔀 Randomize Order</button>
+            </div>
+
+            <!-- Multiple Choice View -->
+            <div id="multipleChoiceView" class="understand-mode-view" style="display:none;">
+                <div class="question-box">
+                    <p id="understandMcQuestion" class="question"></p>
+                    <div id="understandMcOptions" class="options-container"></div>
+                </div>
+                <p id="understandMcResult" class="result-message"></p>
+            </div>
+
+            <!-- Typing View -->
+            <div id="typingView" class="understand-mode-view" style="display:none;">
+                <div class="question-box">
+                    <p id="understandTypingQuestion" class="question"></p>
+                    <input type="text" id="understandTypingInput" placeholder="Type your answer here...">
+                    <p id="understandTypingFeedback" class="feedback-message"></p>
+                </div>
+            </div>
+
+            <div class="button-group">
+                <button onclick="previousUnderstandCard()" class="btn">← Previous</button>
+                <button onclick="nextUnderstandCard()" class="btn">Next →</button>
+            </div>
+
+            <button onclick="exitStudy()" class="btn btn-secondary">Exit</button>
+        </div>
+    </div>
+
+    <script src="app.js"></script>
+</body>
+</html>
