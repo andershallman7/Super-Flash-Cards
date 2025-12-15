@@ -62,7 +62,37 @@ const sampleSet = {
             answer: "Pollo",
             type: "vocab",
             hint: "Double 'L'"
-        }
+        },
+        {
+            question: "to dance (English to Spanish)",
+            answer: "bailar",
+            type: "vocab",
+            hint: "Starts with 'b'"
+        },
+        {
+            question: "to walk (English to Spanish)",
+            answer: "caminar",
+            type: "vocab",
+            hint: "Starts with 'c'"
+        },
+        {
+            question: "to sing (English to Spanish)",
+            answer: "cantar",
+            type: "vocab",
+            hint: "Starts with 'c'"
+        },
+        {
+            question: "to buy (English to Spanish)",
+            answer: "comprar",
+            type: "vocab",
+            hint: "Starts with 'c'"
+        },
+        {
+            question: "to converse (English to Spanish)",
+            answer: "conversar",
+            type: "vocab",
+            hint: "Starts with 'c'"
+        },
     ]
 };
 
