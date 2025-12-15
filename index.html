@@ -79,7 +79,6 @@
                 <button onclick="startUnderstand()" class="btn btn-primary">🧠 Understand</button>
                 <button onclick="startFlashcards()" class="btn btn-primary">📚 Study with Flashcards</button>
                 <button onclick="startMultipleChoice()" class="btn btn-primary">❓ Practice Multiple Choice</button>
-                <button onclick="startLearn()" class="btn btn-primary">🎓 Learn Mode</button>
                 <button onclick="startTextQuestions()" class="btn btn-primary">✍️ Text Questions</button>
             </div>
 
@@ -113,8 +112,8 @@
             </div>
 
             <div class="button-group">
-                <button onclick="previousCard()" class="btn">← Previous</button>
-                <button onclick="nextCard()" class="btn">Next →</button>
+                <button id="knowBtn" onclick="markKnow()" class="btn btn-primary">I know</button>
+                <button id="dontKnowBtn" onclick="markDontKnow()" class="btn btn-secondary">I don't know</button>
             </div>
 
             <button onclick="exitStudy()" class="btn btn-secondary">Exit</button>
@@ -140,27 +139,7 @@
             </div>
         </div>
 
-        <!-- Learn Mode Screen -->
-        <div id="learnScreen" class="screen">
-            <h2>Learn Mode</h2>
-            <div class="progress-bar">
-                <div id="learnProgress" class="progress-fill"></div>
-            </div>
-            <p id="learnProgressText" class="progress-text"></p>
-
-            <div class="question-box">
-                <p id="learnQuestion" class="question"></p>
-                <input type="text" id="learnInput" placeholder="Type your answer here...">
-                <p id="learnFeedback" class="feedback-message"></p>
-            </div>
-
-            <div class="button-group">
-                <button onclick="submitLearnAnswer()" class="btn btn-primary">Submit Answer</button>
-                <button onclick="skipQuestion()" class="btn">Skip</button>
-            </div>
-
-            <button onclick="exitStudy()" class="btn btn-secondary">Exit</button>
-        </div>
+        <!-- Learn Mode removed -->
 
         <!-- Text Questions Screen -->
         <div id="textQuestionsScreen" class="screen">

@@ -279,6 +279,7 @@ textarea:focus {
     height: 300px;
     cursor: pointer;
     position: relative;
+    transition: background 0.3s, opacity 0.5s;
 }
 
 .flashcard-inner {

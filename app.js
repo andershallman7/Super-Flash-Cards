@@ -80,6 +80,9 @@ function showHome() {
     currentQuestionIndex = 0;
     correctAnswers = 0;
     totalQuestions = 0;
+    learnAttempts = {};
+    multipleChoiceAnswers = [];
+
     showScreen('homeScreen');
 }
 
@@ -269,12 +272,26 @@ function showStudySet() {
 }
 
 // Flashcard Study Mode
+let flashcardWrongCount = 0;
+let flashcardAnsweredCount = 0;
+
 function startFlashcards() {
     studyMode = 'flashcards';
     currentCardIndex = 0;
+    flashcardWrongCount = 0;
+    flashcardAnsweredCount = 0;
     showScreen('flashcardScreen');
     displayFlashcard();
     setTimeout(() => addSwipeListeners('flashcard'), 100);
+    // Reset flashcard color/opacity
+    const flashcard = document.getElementById('flashcard');
+    flashcard.style.background = '';
+    flashcard.style.opacity = 1;
+    // Show the know/don't know buttons
+    const knowBtn = document.getElementById('knowBtn');
+    const dontKnowBtn = document.getElementById('dontKnowBtn');
+    if (knowBtn) knowBtn.style.display = '';
+    if (dontKnowBtn) dontKnowBtn.style.display = '';
 }
 
 function displayFlashcard() {
@@ -284,8 +301,13 @@ function displayFlashcard() {
 
     const flashcard = document.getElementById('flashcard');
     flashcard.classList.remove('flipped');
+    flashcard.style.background = '';
+    flashcard.style.opacity = 1;
 
     updateProgress(currentCardIndex + 1, currentStudySet.cards.length, 'progress', 'progressText');
+    // Enable buttons
+    document.getElementById('knowBtn').disabled = false;
+    document.getElementById('dontKnowBtn').disabled = false;
 }
 
 function flipCardRegular() {
@@ -296,103 +318,58 @@ function nextCard() {
     if (currentCardIndex < currentStudySet.cards.length - 1) {
         currentCardIndex++;
         displayFlashcard();
+    } else {
+        showFlashcardScore();
     }
+}
+
+function markKnow() {
+    animateFlashcard('know');
+}
+
+function markDontKnow() {
+    flashcardWrongCount++;
+    animateFlashcard('dontknow');
+}
+
+function animateFlashcard(type) {
+    const flashcard = document.getElementById('flashcard');
+    // Disable buttons to prevent double click
+    document.getElementById('knowBtn').disabled = true;
+    document.getElementById('dontKnowBtn').disabled = true;
+    if (type === 'know') {
+        flashcard.style.background = 'var(--success-color)';
+    } else {
+        flashcard.style.background = 'var(--danger-color)';
+    }
+    flashcard.style.transition = 'background 0.3s, opacity 0.5s';
+    setTimeout(() => {
+        flashcard.style.opacity = 0;
+        setTimeout(() => {
+            flashcard.style.background = '';
+            flashcard.style.opacity = 1;
+            nextCard();
+        }, 400);
+    }, 300);
+}
+
+function showFlashcardScore() {
+    // Hide flashcard, show score
+    const flashcardContainer = document.querySelector('.flashcard-container');
+    flashcardContainer.innerHTML = `<div class="results-box"><div class="results-message">You finished all flashcards!</div><div class="score">Score: ${Math.round(((currentStudySet.cards.length-flashcardWrongCount)/currentStudySet.cards.length)*100)}%</div><div style='margin-top:20px;'><button onclick='exitStudy()' class='btn btn-primary'>Exit</button></div></div>`;
+    document.getElementById('progress').style.width = '100%';
+    document.getElementById('progressText').textContent = `Completed!`;
+    // Hide the know/don't know buttons
+    const knowBtn = document.getElementById('knowBtn');
+    const dontKnowBtn = document.getElementById('dontKnowBtn');
+    if (knowBtn) knowBtn.style.display = 'none';
+    if (dontKnowBtn) dontKnowBtn.style.display = 'none';
 }
 
 function previousCard() {
     if (currentCardIndex > 0) {
         currentCardIndex--;
         displayFlashcard();
-    }
-}
-
-// Multiple Choice Mode
-function startMultipleChoice() {
-    studyMode = 'multipleChoice';
-    currentQuestionIndex = 0;
-    correctAnswers = 0;
-    totalQuestions = currentStudySet.cards.length;
-    multipleChoiceAnswers = [];
-    showScreen('multipleChoiceScreen');
-    displayMCQuestion();
-}
-
-function displayMCQuestion() {
-    const card = currentStudySet.cards[currentQuestionIndex];
-    document.getElementById('mcQuestion').textContent = card.question;
-    document.getElementById('mcResult').textContent = '';
-    document.getElementById('mcResult').className = 'result-message';
-
-    const optionsContainer = document.getElementById('mcOptions');
-    optionsContainer.innerHTML = '';
-
-    // Create options: correct answer + 3 random incorrect options
-    const correctAnswer = card.answer;
-    const allOptions = [correctAnswer];
-
-    // Generate plausible wrong answers
-    const wrongOptions = generateWrongAnswers(correctAnswer, 3);
-    allOptions.push(...wrongOptions);
-
-    // Shuffle options
-    shuffleArray(allOptions);
-
-    allOptions.forEach((option, index) => {
-        const button = document.createElement('button');
-        button.className = 'option-button';
-        button.textContent = `${String.fromCharCode(65 + index)}) ${option}`;
-        button.onclick = () => selectMCOption(option, correctAnswer, button);
-        optionsContainer.appendChild(button);
-    });
-
-    updateProgress(currentQuestionIndex + 1, totalQuestions, 'mcProgress', 'mcProgressText');
-}
-
-function selectMCOption(selected, correct, button) {
-    const resultElement = document.getElementById('mcResult');
-    const optionsContainer = document.getElementById('mcOptions');
-    const allButtons = optionsContainer.querySelectorAll('.option-button');
-
-    allButtons.forEach(btn => btn.disabled = true);
-
-    if (selected === correct) {
-        button.classList.add('correct');
-        resultElement.textContent = '✓ Correct!';
-        resultElement.className = 'result-message correct';
-        correctAnswers++;
-
-        multipleChoiceAnswers.push({
-            correct: true
-        });
-
-        // Auto-advance to next question after 1.5 seconds
-        setTimeout(() => {
-            nextMCQuestion();
-        }, 1500);
-    } else {
-        button.classList.add('incorrect');
-        resultElement.textContent = `✗ Incorrect. The correct answer is: ${correct}`;
-        resultElement.className = 'result-message incorrect';
-
-        // Highlight the correct answer
-        allButtons.forEach(btn => {
-            if (btn.textContent.includes(correct)) {
-                btn.classList.add('correct');
-            }
-        });
-
-        multipleChoiceAnswers.push({
-            correct: false
-        });
-
-        // Allow moving to next even if wrong
-        setTimeout(() => {
-            const nextBtn = document.createElement('button');
-            nextBtn.className = 'btn btn-primary';
-            nextBtn.textContent = 'Next Question';
-            nextBtn.onclick = () => nextMCQuestion();
-            resultElement.parentElement.querySelector('.button-group')?.appendChild(nextBtn);
-        }, 500);
     }
 }
 
