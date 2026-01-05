@@ -1,7 +1,7 @@
 # Super-Flash-Cards
 What is Super Flash Cards:
 
-    Super Flash cards is a web based flashcard program that aims to become an alternative to Quizlet. Super Flash Carda offers similar features to Quizlet such as multiple choice questions and sometimes similar to the learning feature.
+    Super Flash cards is a web based flashcard program that aims to become an alternative to Quizlet. Super Flash Cards offers similar features to Quizlet such as multiple choice questions and sometimes similar to the learning feature.
 
 How to import flash cards:
 
